@@ -6,12 +6,11 @@
 #include <vector>
 #include <cmath>
 #include <limits>
+#include <algorithm>
 #include <opencv2/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/features2d.hpp>
-#include <opencv2/xfeatures2d.hpp>
-#include <opencv2/xfeatures2d/nonfree.hpp>
 
 #include "dataStructures.h"
 #include "matching2D.hpp"
@@ -62,7 +61,17 @@ int main(int argc, const char *argv[])
         // push image into data frame buffer
         DataFrame frame;
         frame.cameraImg = imgGray;
-        dataBuffer.push_back(frame);
+        if (dataBuffer.size() < dataBufferSize)
+        {
+            dataBuffer.push_back(frame);
+        }
+        else
+        {
+            // this shifts elements in the vector one to the left (first element goes to the end)
+            rotate(dataBuffer.begin(), dataBuffer.begin() + 1, dataBuffer.end());
+            dataBuffer.back() = frame;      // replacing the last element with new frame
+        }
+        
 
         //// EOF STUDENT ASSIGNMENT
         cout << "#1 : LOAD IMAGE INTO BUFFER done" << endl;
@@ -101,7 +110,7 @@ int main(int argc, const char *argv[])
         //// EOF STUDENT ASSIGNMENT
 
         // optional : limit number of keypoints (helpful for debugging and learning)
-        bool bLimitKpts = false;
+        bool bLimitKpts = true;
         if (bLimitKpts)
         {
             int maxKeypoints = 50;
