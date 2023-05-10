@@ -96,7 +96,7 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
         cv::Mat visImage = img.clone();
         cv::drawKeypoints(img, keypoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
         string windowName = "Shi-Tomasi Corner Detector Results";
-        cv::namedWindow(windowName, 6);
+        cv::namedWindow(windowName, 7);
         imshow(windowName, visImage);
         cv::waitKey(0);
     }
@@ -162,7 +162,7 @@ void detKeypointsHarris(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis
         cv::Mat visImage = img.clone();
         cv::drawKeypoints(img, keypoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
         string windowName = "Harris-Corner Detector Results";
-        cv::namedWindow(windowName, 6);
+        cv::namedWindow(windowName, 7);
         imshow(windowName, visImage);
         cv::waitKey(0);
     }
@@ -211,8 +211,13 @@ void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std:
     {
         cv::Mat visImage = img.clone();
         cv::drawKeypoints(img, keypoints, visImage, cv::Scalar::all(-1), cv::DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+
+        // draw red rectangle
+        cv::Rect rect(535, 180, 180, 150); // x, y, width, height
+        cv::rectangle(visImage, rect, cv::Scalar(0, 255, 0), 2);
+
         string windowName = detectorType + " Keypoint Detector Results";
-        cv::namedWindow(windowName, 6);
+        cv::namedWindow(windowName, 7);
         imshow(windowName, visImage);
         cv::waitKey(0);
     }

@@ -80,23 +80,24 @@ int main(int argc, const char *argv[])
 
         // extract 2D keypoints from current image
         vector<cv::KeyPoint> keypoints; // create empty feature list for current image
-        string detectorType = "HARRIS";
+        string detectorType = "BRISK";
 
         //// STUDENT ASSIGNMENT
         //// TASK MP.2 -> add the following keypoint detectors in file matching2D.cpp and enable string-based selection based on detectorType
         //// -> HARRIS, FAST, BRISK, ORB, AKAZE, SIFT
 
+        bool bVisKeypoints = false;
         if (detectorType.compare("SHITOMASI") == 0)
         {
-            detKeypointsShiTomasi(keypoints, imgGray, false);
+            detKeypointsShiTomasi(keypoints, imgGray, bVisKeypoints);
         }
         else if (detectorType.compare("HARRIS") == 0)
         {
-            detKeypointsHarris(keypoints, imgGray, false);
+            detKeypointsHarris(keypoints, imgGray, bVisKeypoints);
         }
         else
         {
-            detKeypointsModern(keypoints, imgGray, detectorType, false);
+            detKeypointsModern(keypoints, imgGray, detectorType, bVisKeypoints);
         }
         //// EOF STUDENT ASSIGNMENT
 
@@ -108,7 +109,16 @@ int main(int argc, const char *argv[])
         cv::Rect vehicleRect(535, 180, 180, 150);
         if (bFocusOnVehicle)
         {
-            // ...
+            // ToDo: remove keypoints that are outside the rectangle
+            vector<cv::KeyPoint> keypointsInsideRect;
+            for (auto &kpt : keypoints)
+            {
+                if (vehicleRect.contains(kpt.pt))
+                {
+                    keypointsInsideRect.push_back(kpt);
+                }
+            }
+            keypoints = keypointsInsideRect;   // replace old keypoints
         }
 
         //// EOF STUDENT ASSIGNMENT
