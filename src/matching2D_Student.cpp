@@ -16,7 +16,7 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     {
         int normType = descriptorType.compare("DES_BINARY") == 0 ? cv::NORM_HAMMING : cv::NORM_L2;
         matcher = cv::BFMatcher::create(normType, crossCheck);
-        cout << "BF matching cross-check=" << crossCheck;
+        // cout << "BF matching cross-check=" << crossCheck;
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
@@ -33,7 +33,7 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
 
         // Implement FLANN matching (used L2_Norm by default to create a kd-tree)
         matcher = cv::FlannBasedMatcher::create();
-        cout << "FLANN matching" << endl;
+        // cout << "FLANN matching" << endl;
     }
 
     // perform matching task
@@ -41,7 +41,7 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     { // nearest neighbor (best match)
 
         matcher->match(descSource, descRef, matches); // Finds the best match for each descriptor in desc1
-        cout << "Nearest-Neighbor (Best Match)" << endl;
+        // cout << "Nearest-Neighbor (Best Match)" << endl;
     }
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
@@ -49,7 +49,7 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
         int k = 2;
         vector<vector<cv::DMatch>> knn_matches;
         matcher->knnMatch(descSource, descRef, knn_matches, k);
-        cout << "K-Nearest-Neighbor (Best Match); k=" << k << endl;
+        // cout << "K-Nearest-Neighbor (Best Match); k=" << k << endl;
 
         // filter matches using descriptor distance ratio test
         double minDescDistRatio = 0.8;
@@ -105,10 +105,8 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
     }
 
     // perform feature description
-    double t = (double)cv::getTickCount();
+    
     extractor->compute(img, keypoints, descriptors);
-    t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-    cout << descriptorType << " descriptor extraction in " << 1000 * t / 1.0 << " ms" << endl;
 }
 
 // Detect keypoints in image using the traditional Shi-Thomasi detector
@@ -138,7 +136,7 @@ void detKeypointsShiTomasi(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool b
         keypoints.push_back(newKeyPoint);
     }
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-    cout << "Shi-Tomasi detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+    // cout << "Shi-Tomasi detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
     // visualize results
     if (bVis)
@@ -204,7 +202,7 @@ void detKeypointsHarris(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis
         }
     }
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-    cout << "Harris-Corner detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+    // cout << "Harris-Corner detection with n=" << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
     // visualize results
     if (bVis)
@@ -254,7 +252,7 @@ void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std:
     double t = (double)cv::getTickCount();
     detector->detect(img, keypoints);
     t = ((double)cv::getTickCount() - t) / cv::getTickFrequency();
-    cout << detectorType << " with n= " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
+    // cout << detectorType << " with n= " << keypoints.size() << " keypoints in " << 1000 * t / 1.0 << " ms" << endl;
 
     // visualize results
     if (bVis)
