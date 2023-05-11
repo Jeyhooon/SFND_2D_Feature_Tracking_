@@ -1,5 +1,6 @@
 #include <numeric>
 #include "matching2D.hpp"
+#include <opencv2/xfeatures2d.hpp>
 
 using namespace std;
 
@@ -13,12 +14,26 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
 
     if (matcherType.compare("MAT_BF") == 0)
     {
-        int normType = cv::NORM_HAMMING;
+        int normType = descriptorType.compare("DES_BINARY") == 0 ? cv::NORM_HAMMING : cv::NORM_L2;
         matcher = cv::BFMatcher::create(normType, crossCheck);
+        cout << "BF matching cross-check=" << crossCheck;
     }
     else if (matcherType.compare("MAT_FLANN") == 0)
     {
-        // ...
+        // OpenCV bug workaround : convert binary descriptors to floating point due to a bug in current OpenCV implementation
+        if (descSource.type() != CV_32F)
+        { 
+            descSource.convertTo(descSource, CV_32F);
+        }
+
+        if (descRef.type() != CV_32F)
+        {
+            descRef.convertTo(descRef, CV_32F);
+        }
+
+        // Implement FLANN matching (used L2_Norm by default to create a kd-tree)
+        matcher = cv::FlannBasedMatcher::create();
+        cout << "FLANN matching" << endl;
     }
 
     // perform matching task
@@ -26,18 +41,34 @@ void matchDescriptors(std::vector<cv::KeyPoint> &kPtsSource, std::vector<cv::Key
     { // nearest neighbor (best match)
 
         matcher->match(descSource, descRef, matches); // Finds the best match for each descriptor in desc1
+        cout << "Nearest-Neighbor (Best Match)" << endl;
     }
     else if (selectorType.compare("SEL_KNN") == 0)
     { // k nearest neighbors (k=2)
 
-        // ...
+        int k = 2;
+        vector<vector<cv::DMatch>> knn_matches;
+        matcher->knnMatch(descSource, descRef, knn_matches, k);
+        cout << "K-Nearest-Neighbor (Best Match); k=" << k << endl;
+
+        // filter matches using descriptor distance ratio test
+        double minDescDistRatio = 0.8;
+        for (auto item = knn_matches.begin(); item != knn_matches.end(); ++item)
+        {
+            if ((*item)[0].distance < minDescDistRatio * (*item)[1].distance)
+            {
+                // this means that best match has much lower distance than second-best match 
+                // and most probably is a good match (not a False Positive)
+                matches.push_back((*item)[0]);
+            }
+        }
     }
 }
 
 // Use one of several types of state-of-art descriptors to uniquely identify keypoints
 void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descriptors, string descriptorType)
 {
-    // select appropriate descriptor
+    // select appropriate descriptor: BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
     cv::Ptr<cv::DescriptorExtractor> extractor;
     if (descriptorType.compare("BRISK") == 0)
     {
@@ -48,10 +79,29 @@ void descKeypoints(vector<cv::KeyPoint> &keypoints, cv::Mat &img, cv::Mat &descr
 
         extractor = cv::BRISK::create(threshold, octaves, patternScale);
     }
+    else if (descriptorType.compare("BRIEF") == 0)
+    {
+        extractor = cv::xfeatures2d::BriefDescriptorExtractor::create();
+    }
+    else if (descriptorType.compare("ORB") == 0)
+    {
+        extractor = cv::ORB::create();
+    }
+    else if (descriptorType.compare("FREAK") == 0)
+    {
+        extractor = cv::xfeatures2d::FREAK::create();
+    }
+    else if (descriptorType.compare("AKAZE") == 0)
+    {
+        extractor = cv::AKAZE::create();
+    }
+    else if (descriptorType.compare("SIFT") == 0)
+    {
+        extractor = cv::SIFT::create();
+    }
     else
     {
-
-        //...
+        throw invalid_argument("Invalid descriptorType: " + descriptorType + "; should be on of: [BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT]");
     }
 
     // perform feature description

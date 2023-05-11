@@ -124,7 +124,7 @@ int main(int argc, const char *argv[])
         //// EOF STUDENT ASSIGNMENT
 
         // optional : limit number of keypoints (helpful for debugging and learning)
-        bool bLimitKpts = true;
+        bool bLimitKpts = false;
         if (bLimitKpts)
         {
             int maxKeypoints = 50;
@@ -148,7 +148,7 @@ int main(int argc, const char *argv[])
         //// -> BRIEF, ORB, FREAK, AKAZE, SIFT
 
         cv::Mat descriptors;
-        string descriptorType = "BRISK"; // BRIEF, ORB, FREAK, AKAZE, SIFT
+        string descriptorType = "SIFT"; // BRISK, BRIEF, ORB, FREAK, AKAZE, SIFT
         descKeypoints((dataBuffer.end() - 1)->keypoints, (dataBuffer.end() - 1)->cameraImg, descriptors, descriptorType);
         //// EOF STUDENT ASSIGNMENT
 
@@ -163,9 +163,21 @@ int main(int argc, const char *argv[])
             /* MATCH KEYPOINT DESCRIPTORS */
 
             vector<cv::DMatch> matches;
-            string matcherType = "MAT_BF";        // MAT_BF, MAT_FLANN
-            string descriptorType = "DES_BINARY"; // DES_BINARY, DES_HOG
-            string selectorType = "SEL_NN";       // SEL_NN, SEL_KNN
+            string matcherType = "MAT_FLANN";        // MAT_BF, MAT_FLANN
+            string selectorType = "SEL_KNN";         // SEL_NN, SEL_KNN
+            
+            // DES_BINARY, DES_HOG  (this is important when using Brute-Force matching)
+            if (descriptorType.compare("SIFT") == 0 || descriptorType.compare("AKAZE") == 0)
+            {
+                // SIFT and AKAZE output descriptors as real values 
+                //  --> hence Norm_L2 should be used to calculate distance between descriptors for matching.
+                string descriptorType = "DES_HOG";    
+            } 
+            else
+            {
+                // output binary descriptors (string of 0s and 1s) --> hence Norm_Hamming should be used.
+                string descriptorType = "DES_BINARY";
+            }
 
             //// STUDENT ASSIGNMENT
             //// TASK MP.5 -> add FLANN matching in file matching2D.cpp
