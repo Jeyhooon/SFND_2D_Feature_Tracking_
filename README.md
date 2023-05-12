@@ -31,7 +31,7 @@ Based on this limited evaluations, one can consider two applications:
   * **ORB-BRIEF**: Time-to-Detect-and-Match = 41.74 (ms)  |  num-Kpts-Matched/Detected = 450/1161  |  Kpt-Size-Mean/Std = 56.06/25.25
 
 2. ### Quality: 
-  Here, it's not possible to tell which pair produces a better quality (don't other measures such as False-Positive-Rate, ...); but we can say which pair detects and matches the most keypoints + having more diversity in keypoint size (which can indicate that they're extracted from multiple scales and hence more robust to scale change).
+  Here, it's not possible to tell which pair produces a better quality (don't have measures such as False-Positive-Rate, ...); but we can say which pair detects and matches the most keypoints + having more diversity in keypoint size (which can indicate that they're extracted from multiple scales and hence more robust to scale change).
   * **BRISK-SIFT**: num-Kpts-Matched/Detected = 1646/2762  |  Kpt-Size-Mean/Std = 21.94/14.61  |  Time-to-Detect-and-Match = 480.35 (ms)
   * **BRISK-BRIEF**: num-Kpts-Matched/Detected = 1344/2762  |  Kpt-Size-Mean/Std = 21.94/14.61  |  Time-to-Detect-and-Match = 319.03 (ms)
   * **BRISK-BRISK**: num-Kpts-Matched/Detected = 1298/2762  |  Kpt-Size-Mean/Std = 21.94/14.61  |  Time-to-Detect-and-Match = 416.53 (ms)
