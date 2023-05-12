@@ -155,7 +155,7 @@ void detKeypointsHarris(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis
     int blockSize = 4;           //  size of an average block for computing a derivative covariation matrix over each pixel neighborhood
     int apertureSize = 5;        //  aperture parameter for the Sobel operator (usually odd number larger than blockSize)
     int k = 0.04;                //  controls the sensitivity of the corner detector (in corner respose R; suggested: 0.04 - 0.06); smaller -> more sensitive -> more corners detected --> more false positives
-    int minResponse = 100;       //  minimum value for a corner in the 8bit scaled response matrix
+    int minResponse = 15;        //  minimum value for a corner in the 8bit scaled response matrix
     double maxOverlap = 0.0;     //  max. permissible overlap between two features in %, used during non-maxima suppression
     double t = (double)cv::getTickCount();
 
@@ -164,7 +164,7 @@ void detKeypointsHarris(vector<cv::KeyPoint> &keypoints, cv::Mat &img, bool bVis
     cv::cornerHarris(img, cornerness, blockSize, apertureSize, k);
     cv::normalize(cornerness, cornernessNorm, 0, 255, cv::NORM_MINMAX, CV_32FC1, cv::Mat());
 
-        // add corners to result vector
+    // add corners to result vector
     for (int y = 0; y < cornernessNorm.rows; y++)
     {
         for (int x = 0; x < cornernessNorm.cols; x++)
@@ -226,6 +226,7 @@ void detKeypointsModern(std::vector<cv::KeyPoint> &keypoints, cv::Mat &img, std:
         int threshold = 30;    // difference between intensity of the central pixel and pixels of a circle around this pixel
         bool bNMS = true;      // perform non-maxima suppression on keypoints
         cv::FastFeatureDetector::DetectorType type = cv::FastFeatureDetector::TYPE_9_16; // TYPE_9_16, TYPE_7_12, TYPE_5_8
+        // This uses the 16 surrounding pixels to detect whether a pixel is a corner, requiring a contiguous set of 9 out of 16 pixels to be either darker or lighter by the threshold.
         detector = cv::FastFeatureDetector::create(threshold, bNMS, type);
     }
     else if (detectorType.compare("BRISK") == 0)
