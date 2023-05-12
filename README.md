@@ -11,6 +11,32 @@ The idea of the camera course is to build a collision detection system - that's 
 
 See the classroom instruction and code comments for more details on each of these parts. Once you are finished with this project, the keypoint matching part will be set up and you can proceed to the next lesson, where the focus is on integrating Lidar points and on object detection using deep-learning. 
 
+# UPDATE
+
+## Added Benchmarking Script
+To easily compare the pair of Keypoint Detector and Descriptor, `benchmakr2D.cpp` is added. It's very similar to `MidTermProject_Camera_Student.cpp` file, only the looping and logging are added to save the results as `benchmark_data.csv` file. Moreover, the results also exported as `.pdf` and `.xlsx` files. 
+
+## Some Observations
+It should be mentioned that the results are obtained by using default parameters for the detector and descriptors (by having a better measure for the qualiy one can tune the parameters depending on the application; i.e.: real-time or quality).
+
+**AKAZE** descriptor is only compatible with its own Keypoint-Detector
+
+**SIFT-ORB** keypoint detector-descriptor pair with default parameters gave out-of-memory error!
+
+## Top3 Detector-Descriptor Combinations
+Based on this limited evaluations, one can consider two applications:
+1. ### Real-time: 
+  * **FAST-BRIEF**: Time-to-Detect-and-Match = 8.44 (ms)  |  num-Kpts-Matched/Detected = 883/1491  |  Kpt-Size-Mean/Std = 7.0/0.0
+  * **FAST-ORB**: Time-to-Detect-and-Match = 12.64 (ms)  |  num-Kpts-Matched/Detected = 859/1491  |  Kpt-Size-Mean/Std = 7.0/0.0
+  * **ORB-BRIEF**: Time-to-Detect-and-Match = 41.74 (ms)  |  num-Kpts-Matched/Detected = 450/1161  |  Kpt-Size-Mean/Std = 56.06/25.25
+
+2. ### Quality: 
+  Here, it's not possible to tell which pair produces a better quality (don't other measures such as False-Positive-Rate, ...); but we can say which pair detects and matches the most keypoints + having more diversity in keypoint size (which can indicate that they're extracted from multiple scales and hence more robust to scale change).
+  * **BRISK-SIFT**: num-Kpts-Matched/Detected = 1646/2762  |  Kpt-Size-Mean/Std = 21.94/14.61  |  Time-to-Detect-and-Match = 480.35 (ms)
+  * **BRISK-BRIEF**: num-Kpts-Matched/Detected = 1344/2762  |  Kpt-Size-Mean/Std = 21.94/14.61  |  Time-to-Detect-and-Match = 319.03 (ms)
+  * **BRISK-BRISK**: num-Kpts-Matched/Detected = 1298/2762  |  Kpt-Size-Mean/Std = 21.94/14.61  |  Time-to-Detect-and-Match = 416.53 (ms)
+
+
 ## Dependencies for Running Locally
 1. cmake >= 2.8
  * All OSes: [click here for installation instructions](https://cmake.org/install/)
