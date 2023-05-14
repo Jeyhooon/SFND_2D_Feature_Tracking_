@@ -1,2 +1,3 @@
 build/
 .vscode/
+exercises/exercise_detect_objects/dat/yolo/yolov3.weights
