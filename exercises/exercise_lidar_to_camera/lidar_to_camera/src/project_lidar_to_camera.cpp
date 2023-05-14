@@ -45,16 +45,31 @@ void projectLidarToCamera2()
     cv::Mat visImg = img.clone();
     cv::Mat overlay = visImg.clone();
 
-    cv::Mat X(4,1,cv::DataType<double>::type);
+    //  cv::Mat X(4,1,cv::DataType<double>::type);  is essentially equivalent to cv::Mat X(4,1, CV_64F);
+    cv::Mat X(4,1,cv::DataType<double>::type);      // representing a column vector (4,1); other part specifies type of data that matrix will hold
     cv::Mat Y(3,1,cv::DataType<double>::type);
     for(auto it=lidarPoints.begin(); it!=lidarPoints.end(); ++it) {
+        
+        float maxX = 25.0, maxY = 6.0, minZ = -1.4;
+        if (it->x > maxX || it->x < 0.0 || abs(it->y) > maxY || it->z < minZ || it->r < 0.01)
+        {
+            continue;       // skip to the next point (current lidar point is not valid)
+        }
+
         // 1. Convert current Lidar point into homogeneous coordinates and store it in the 4D variable X.
+        X.at<double>(0,0) = it->x;
+        X.at<double>(1,0) = it->y;
+        X.at<double>(2,0) = it->z;
+        X.at<double>(3,0) = 1.0;
 
         // 2. Then, apply the projection equation as detailed in lesson 5.1 to map X onto the image plane of the camera. 
         // Store the result in Y.
+        Y = P_rect_00 * R_rect_00 * RT * X;
 
         // 3. Once this is done, transform Y back into Euclidean coordinates and store the result in the variable pt.
         cv::Point pt;
+        pt.x = Y.at<double>(0,0) / Y.at<double>(0, 2);
+        pt.y = Y.at<double>(1,0) / Y.at<double>(0, 2);
 
         float val = it->x;
         float maxVal = 20.0;
