@@ -60,10 +60,10 @@ void detectObjects2()
     // first 4 elements represent the center coordinates (x, y), width, and height of a bounding box (relative to image size, typically normalized -> [0, 1])
     // 5th element is the confidence score (how certain the model is that it has found an object in the bounding box)
     // remaining 80 elements are class probabilities, one for each of the 80 classes in the COCO dataset.
-    // netOutput is a vector with 3 elements each on is a matrix:
+    // netOutput is a vector with 3 elements each one is a matrix:
     // netOutput[0]: Mat with size = (507, 85);  where 507  = 13*13*3 (for each grid cell we have 3 bounding box prediction)
     // netOutput[1]: Mat with size = (2028, 85); where 2028 = 26*26*3
-    // netOutput[1]: Mat with size = (8112, 85); where 8112 = 52*52*3
+    // netOutput[2]: Mat with size = (8112, 85); where 8112 = 52*52*3
 
     // Scan through all bounding boxes and keep only the ones with high confidence
     float confThreshold = 0.20;
@@ -73,8 +73,21 @@ void detectObjects2()
     for (size_t i = 0; i < netOutput.size(); ++i)
     {
         float* data = (float*)netOutput[i].data;
+        // The pointer data now points to the same memory location as the netOutput[i].data pointer, 
+        // but it is declared as a float*:
+        // By declaring data as a float*, you can access the data elements of the matrix netOutput[i] 
+        // using pointer arithmetic and treat them as float values. 
+        // For example, you can use data[0] to access the first element, data[1] for the second element, and so on.
+
         for (int j = 0; j < netOutput[i].rows; ++j, data += netOutput[i].cols)
         {
+            // data += netOutput[i].cols: data is being incremented by netOutput[i].cols. 
+            // This statement advances the data pointer to the next row of the matrix netOutput[i]. 
+            // Since data is initially pointing to the beginning of the current row, 
+            //   adding netOutput[i].cols to data moves it to the start of the next row. 
+            // This allows the loop to iterate over each row of the matrix and process the data accordingly.
+            
+            // Creates a matrix header for the specified column span; scores.size = (1, 80)
             cv::Mat scores = netOutput[i].row(j).colRange(5, netOutput[i].cols);
             cv::Point classId;
             double confidence;
