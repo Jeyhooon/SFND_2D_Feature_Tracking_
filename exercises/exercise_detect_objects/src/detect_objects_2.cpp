@@ -13,7 +13,7 @@ using namespace std;
 void detectObjects2()
 {
     // load image from file
-    cv::Mat img = cv::imread("../images/s_thrun.jpg");
+    cv::Mat img = cv::imread("../images/0000000000.png");
 
     // load class names from file
     string yoloBasePath = "../dat/yolo/";
@@ -48,13 +48,22 @@ void detectObjects2()
     names.resize(outLayers.size());
     for (size_t i = 0; i < outLayers.size(); ++i) // Get the names of the output layers in names
     {
+        // '-1' is necessary because layer indices in the outLayers vector are 1-based, while C++ vectors are 0-based.
         names[i] = layersNames[outLayers[i] - 1];
     }
 
     // invoke forward propagation through network
     vector<cv::Mat> netOutput;
     net.setInput(blob);
-    net.forward(netOutput, names);
+    net.forward(netOutput, names);      // computing the output of the layers specified by 'names'. 
+    // output is represented as a vector with 85 elements:
+    // first 4 elements represent the center coordinates (x, y), width, and height of a bounding box (relative to image size, typically normalized -> [0, 1])
+    // 5th element is the confidence score (how certain the model is that it has found an object in the bounding box)
+    // remaining 80 elements are class probabilities, one for each of the 80 classes in the COCO dataset.
+    // netOutput is a vector with 3 elements each on is a matrix:
+    // netOutput[0]: Mat with size = (507, 85);  where 507  = 13*13*3 (for each grid cell we have 3 bounding box prediction)
+    // netOutput[1]: Mat with size = (2028, 85); where 2028 = 26*26*3
+    // netOutput[1]: Mat with size = (8112, 85); where 8112 = 52*52*3
 
     // Scan through all bounding boxes and keep only the ones with high confidence
     float confThreshold = 0.20;
