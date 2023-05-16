@@ -109,12 +109,23 @@ void clusterLidarWithROI(std::vector<BoundingBox> &boundingBoxes, std::vector<Li
             // check wether point is within current bounding box
             if (smallerBox.contains(pt))
             {
-                it2->lidarPoints.push_back(*it1);
-                lidarPoints.erase(it1);
-                it1--;
-                break;
+                enclosingBoxes.push_back(it2);
             }
+
         } // eof loop over all bounding boxes
+
+        // if this lidar points belongs to only one bounding-box then added to that bounding-box; 
+        // otherwise, ignore that lidar point
+        if (enclosingBoxes.size() == 1)
+        {
+            enclosingBoxes[0]->lidarPoints.push_back(*it1);
+            lidarPoints.erase(it1);
+            it1--;
+            // The it1-- is used to move the iterator back to the position before the erased element. 
+            // This is done because the loop will increment it1 again at the start of the next iteration with ++it1.
+            // However, erasing an element from the middle of a vector in C++ can be computationally expensive
+            // For this exercise, we don't have to erase it (but stil keep it for edu porpuse)
+        }
 
     } // eof loop over all Lidar points
 }
