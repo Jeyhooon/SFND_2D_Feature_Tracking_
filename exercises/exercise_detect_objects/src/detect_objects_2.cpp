@@ -34,7 +34,7 @@ void detectObjects2()
     // generate 4D blob from input image
     cv::Mat blob;
     double scalefactor = 1/255.0;
-    cv::Size size = cv::Size(416, 416);
+    cv::Size size = cv::Size(608, 608);
     cv::Scalar mean = cv::Scalar(0,0,0);
     bool swapRB = false;
     bool crop = false;
@@ -93,6 +93,9 @@ void detectObjects2()
             double confidence;
             
             // Get the value and location of the maximum score
+            // Here, 0 means the minimum value isn't required, so it's ignored.
+            // Since scores is a 1D matrix, this cv::Point will contain 
+            //   x = index of maximum value, y = 0. The x value is used as the class ID.
             cv::minMaxLoc(scores, 0, &confidence, 0, &classId);
             if (confidence > confThreshold)
             {
@@ -111,10 +114,19 @@ void detectObjects2()
         }
     }
 
-    // perform non-maxima suppression
-    float nmsThreshold = 0.4;  // Non-maximum suppression threshold
+    // perform non-maxima suppression:
+    // Non-maximum suppression threshold (value for the Intersection over Union (IoU) score)
+    // The IoU score is a measure of the overlap between two bounding boxes. 
+    // It is calculated as the area of intersection divided by the area of union of the two boxes.
+    float nmsThreshold = 0.4;  
+
+    // Start by selecting the bounding box with the highest confidence score. 
+    // This box will be kept and all other boxes with significant overlap 
+    //    (IoU greater than the threshold) will be suppressed.
+    // Repeat this for the next remaining box with the highest confidence score.
     vector<int> indices;
     cv::dnn::NMSBoxes(boxes, confidences, confThreshold, nmsThreshold, indices);
+    
     std::vector<BoundingBox> bBoxes;
     for (auto it = indices.begin(); it != indices.end(); ++it)
     {
