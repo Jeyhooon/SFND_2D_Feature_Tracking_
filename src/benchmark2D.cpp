@@ -10,7 +10,6 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/features2d.hpp>
-#include <Eigen/Dense>
 #include <fstream>
 
 #include "dataStructures.h"
@@ -21,15 +20,24 @@ using namespace std;
 
 tuple<float, float> calculate_keypoint_size_statistics(vector<cv::KeyPoint> &keypoints)
 {
-    Eigen::VectorXf data(keypoints.size());
+    vector<double> kptSizeVec;
+    double kptSizeMean = 0.0;
     for (int i = 0; i < keypoints.size(); ++i)
     {
-        data(i) = keypoints[i].size;        // type of the kpt.size is float
+        kptSizeVec.push_back(keypoints[i].size);        // type of the kpt.size is float
+        kptSizeMean += keypoints[i].size;
     }
-    float mean = data.mean();
-    float stddev = sqrt((data.array() - mean).square().sum() / (data.size() - 1));
+    kptSizeMean /= kptSizeVec.size();
+    
+    double variance = 0.0;
+    for (double val : kptSizeVec)
+    {
+        variance += (val - kptSizeMean)*(val - kptSizeMean); 
+    }
+    variance /= (kptSizeVec.size() - 1);       // sample variance
+    double stddevKptSize = sqrt(variance);
 
-    return make_tuple(mean, stddev);
+    return make_tuple(kptSizeMean, stddevKptSize);
 }
 
 
